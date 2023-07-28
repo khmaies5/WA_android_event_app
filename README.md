@@ -1,4 +1,4 @@
-# WA_android_event_app
+# WA_android_event_app ☕ 
 
  
 Créer une application mobile android en **Java 8** ( ou java 7 ) permettant la gestion d'évènement
