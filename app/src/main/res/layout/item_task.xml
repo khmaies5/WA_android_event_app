@@ -1,0 +1,52 @@
+<!-- res/layout/item_task.xml -->
+
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp">
+
+        <TextView
+            android:id="@+id/txtTaskId"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="123" />
+
+        <TextView
+            android:id="@+id/txtTaskTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:textSize="16sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/txtTaskId"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Task Title" />
+
+        <TextView
+            android:id="@+id/txtTaskDate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:textSize="14sp"
+            app:layout_constraintStart_toStartOf="@+id/txtTaskTitle"
+            app:layout_constraintTop_toBottomOf="@+id/txtTaskTitle"
+            tools:text="2023-08-09T13:27:38.689Z" />
+
+        <CheckBox
+            android:clickable="false"
+            android:id="@+id/chkTaskCompleted"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/txtTaskTitle"
+            tools:checked="true" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
