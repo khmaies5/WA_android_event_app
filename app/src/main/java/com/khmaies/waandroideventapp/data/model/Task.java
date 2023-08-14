@@ -1,5 +1,7 @@
 package com.khmaies.waandroideventapp.data.model;
 
+import androidx.annotation.Nullable;
+
 import com.google.gson.annotations.SerializedName;
 
 /**
@@ -35,5 +37,6 @@ public class Task {
     public boolean isCompleted() {
         return completed;
     }
+
 }
 

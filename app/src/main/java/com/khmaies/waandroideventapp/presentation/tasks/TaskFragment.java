@@ -5,6 +5,8 @@ import static com.khmaies.waandroideventapp.data.utils.DateUtils.showDateTimePic
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,6 +27,7 @@ import com.khmaies.waandroideventapp.databinding.FragmentTaskBinding;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.List;
 import java.util.Objects;
 import java.util.TimeZone;
 
@@ -38,7 +41,7 @@ public class TaskFragment extends Fragment {
 
     static TaskViewModel taskViewModel;
     private FragmentTaskBinding binding;
-
+    TaskAdapter taskAdapter;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
@@ -57,14 +60,17 @@ public class TaskFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        taskViewModel = new ViewModelProvider(this).get(TaskViewModel.class);
+        taskViewModel = new ViewModelProvider(requireActivity()).get(TaskViewModel.class);
 
         // Set up RecyclerView and adapter
-        TaskAdapter taskAdapter = new TaskAdapter();
+        taskAdapter = new TaskAdapter();
         binding.recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
         binding.recyclerView.setAdapter(taskAdapter);
 
+
         taskViewModel.tasks.observe(getViewLifecycleOwner(), tasks -> taskAdapter.setTasks(tasks));
+        taskViewModel.filteredTasks.observe(getViewLifecycleOwner(), filterdTasks -> taskAdapter.setTasks(filterdTasks));
+
         // Observe the tasks LiveData from the ViewModel
         taskViewModel.getTasks();
 

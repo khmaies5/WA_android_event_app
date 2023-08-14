@@ -1,5 +1,6 @@
 package com.khmaies.waandroideventapp.presentation.users;
 
+import android.text.TextUtils;
 import android.util.Log;
 
 import androidx.lifecycle.LiveData;
@@ -9,6 +10,7 @@ import androidx.lifecycle.ViewModel;
 import com.khmaies.waandroideventapp.data.model.User;
 import com.khmaies.waandroideventapp.data.repository.UserRepository;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -22,8 +24,11 @@ import retrofit2.Response;
 public class UserViewModel extends ViewModel {
     private final UserRepository userRepository;
 
-    private MutableLiveData<List<User>> _user = new MutableLiveData<>();
-    public LiveData<List<User>> user = _user;
+    private MutableLiveData<List<User>> _users = new MutableLiveData<>();
+    public LiveData<List<User>> users = _users;
+
+    private MutableLiveData<List<User>> _filteredUsers = new MutableLiveData<>();
+    public LiveData<List<User>> filteredUsers = _filteredUsers;
 
     @Inject
     public UserViewModel(UserRepository userRepository) {
@@ -41,7 +46,7 @@ public class UserViewModel extends ViewModel {
                     // Call the provided callback with the filtered tasks
                     Log.e(UserViewModel.class.getName(), response.body().toString());
 
-                    _user.postValue(userList);
+                    _users.postValue(userList);
                 } else {
                     Log.e(UserViewModel.class.getName(), response.toString());
                 }
@@ -52,5 +57,25 @@ public class UserViewModel extends ViewModel {
                 Log.e(UserViewModel.class.getName(), t.toString());
             }
         });
+    }
+
+    public void getFilteredUsersById(String id) {
+        List<User> allUsers = users.getValue();
+        if (allUsers == null) {
+            return;
+        }
+
+        if (TextUtils.isEmpty(id)) {
+            _filteredUsers.postValue(allUsers);
+            return;
+        }
+
+        List<User> searched = new ArrayList<>();
+        for (User user : allUsers) {
+            if (Integer.toString(user.getId()).contains(id)) {
+                searched.add(user);
+            }
+        }
+        _filteredUsers.postValue(searched);
     }
 }

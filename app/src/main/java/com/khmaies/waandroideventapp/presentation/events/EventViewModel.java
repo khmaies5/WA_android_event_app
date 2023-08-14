@@ -1,5 +1,6 @@
 package com.khmaies.waandroideventapp.presentation.events;
 
+import android.text.TextUtils;
 import android.util.Log;
 
 import androidx.lifecycle.LiveData;
@@ -9,6 +10,7 @@ import androidx.lifecycle.ViewModel;
 import com.khmaies.waandroideventapp.data.model.Event;
 import com.khmaies.waandroideventapp.data.repository.EventRepository;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -30,6 +32,8 @@ public class EventViewModel extends ViewModel {
     private MutableLiveData<List<Event>> _events = new MutableLiveData<>();
     public LiveData<List<Event>> events = _events;
 
+    private MutableLiveData<List<Event>> _filteredEvents = new MutableLiveData<>();
+    public LiveData<List<Event>> filteredEvents = _filteredEvents;
 
     public void getEvents() {
         eventRepository.getEvents(new Callback<List<Event>>() {
@@ -70,5 +74,26 @@ public class EventViewModel extends ViewModel {
                 callback.onFailure(call, t);
             }
         });
+    }
+
+    public void getFilteredEventsById(String id) {
+        List<Event> allEvents = events.getValue();
+        if (allEvents == null) {
+            return;
+        }
+
+        if (TextUtils.isEmpty(id)) {
+            _filteredEvents.postValue(allEvents);
+            return;
+        }
+
+        List<Event> searched = new ArrayList<>();
+        for (Event event : allEvents) {
+
+            if (Integer.toString(event.getId()).contains(id)) {
+                searched.add(event);
+            }
+        }
+        _filteredEvents.postValue(searched);
     }
 }

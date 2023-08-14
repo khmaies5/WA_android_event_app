@@ -33,7 +33,7 @@ public class UserFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        UserViewModel userViewModel = new ViewModelProvider(this).get(UserViewModel.class);
+        UserViewModel userViewModel = new ViewModelProvider(requireActivity()).get(UserViewModel.class);
         UserAdapter userAdapter = new UserAdapter();
 
         binding.recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
@@ -41,7 +41,8 @@ public class UserFragment extends Fragment {
 
 
         // Observe the users LiveData from the ViewModel
-        userViewModel.user.observe(getViewLifecycleOwner(), users -> userAdapter.setUsers(users));
+        userViewModel.users.observe(getViewLifecycleOwner(), userAdapter::setUsers);
+        userViewModel.filteredUsers.observe(getViewLifecycleOwner(), userAdapter::setUsers);
 
         userViewModel.getUsers();
     }

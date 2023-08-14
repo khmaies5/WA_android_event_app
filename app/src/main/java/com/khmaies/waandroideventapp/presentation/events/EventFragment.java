@@ -53,7 +53,7 @@ public class EventFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        eventViewModel = new ViewModelProvider(this).get(EventViewModel.class);
+        eventViewModel = new ViewModelProvider(requireActivity()).get(EventViewModel.class);
 
         // Set up RecyclerView and adapter
         eventAdapter = new EventAdapter();
@@ -61,6 +61,8 @@ public class EventFragment extends Fragment {
         binding.recyclerView.setAdapter(eventAdapter);
 
         eventViewModel.events.observe(getViewLifecycleOwner(), events -> eventAdapter.setEvents(events));
+        eventViewModel.filteredEvents.observe(getViewLifecycleOwner(), filteredEvents -> eventAdapter.setEvents(filteredEvents));
+
         // Observe the events LiveData from the ViewModel
         eventViewModel.getEvents();
     }

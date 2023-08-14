@@ -1,5 +1,6 @@
 package com.khmaies.waandroideventapp.presentation.tasks;
 
+import android.text.TextUtils;
 import android.util.Log;
 
 import androidx.lifecycle.LiveData;
@@ -9,6 +10,7 @@ import androidx.lifecycle.ViewModel;
 import com.khmaies.waandroideventapp.data.model.Task;
 import com.khmaies.waandroideventapp.data.repository.TaskRepository;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -30,6 +32,9 @@ public class TaskViewModel extends ViewModel {
 
     private MutableLiveData<List<Task>> _tasks = new MutableLiveData<>();
     public LiveData<List<Task>> tasks = _tasks;
+
+    private MutableLiveData<List<Task>> _filteredTasks = new MutableLiveData<>();
+    public LiveData<List<Task>> filteredTasks = _filteredTasks;
 
     public void getTasks() {
         taskRepository.getTasks(new Callback<List<Task>>() {
@@ -70,6 +75,26 @@ public class TaskViewModel extends ViewModel {
                 callback.onFailure(call, t);
             }
         });
+    }
+
+    public void getFilteredTasksById(String id) {
+        List<Task> allTasks = tasks.getValue();
+        if (allTasks == null) {
+            return;
+        }
+
+        if (TextUtils.isEmpty(id)) {
+            _filteredTasks.postValue(allTasks);
+            return;
+        }
+
+        List<Task> searchedTasks = new ArrayList<>();
+        for (Task task : allTasks) {
+            if (Integer.toString(task.getId()).contains(id)) {
+                searchedTasks.add(task);
+            }
+        }
+        _filteredTasks.postValue(searchedTasks);
     }
 
 }

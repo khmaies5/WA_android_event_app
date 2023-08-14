@@ -53,14 +53,16 @@ public class MeetingFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        meetingViewModel = new ViewModelProvider(this).get(MeetingViewModel.class);
+        meetingViewModel = new ViewModelProvider(requireActivity()).get(MeetingViewModel.class);
         MeetingAdapter meetingAdapter = new MeetingAdapter();
 
         binding.recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
         binding.recyclerView.setAdapter(meetingAdapter);
 
-        meetingViewModel.meetings.observe(getViewLifecycleOwner(), tasks -> meetingAdapter.setMeetings(tasks));
+        meetingViewModel.meetings.observe(getViewLifecycleOwner(), meetingAdapter::setMeetings);
         // Observe the tasks LiveData from the ViewModel
+        meetingViewModel.filteredMeetings.observe(getViewLifecycleOwner(), meetingAdapter::setMeetings);
+
         meetingViewModel.getMeetings();
     }
 

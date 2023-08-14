@@ -1,14 +1,17 @@
 package com.khmaies.waandroideventapp.presentation.meetings;
 
+import android.text.TextUtils;
 import android.util.Log;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.khmaies.waandroideventapp.data.model.Event;
 import com.khmaies.waandroideventapp.data.model.Meeting;
 import com.khmaies.waandroideventapp.data.repository.MeetingRepository;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -29,6 +32,9 @@ public class MeetingViewModel extends ViewModel {
 
     private MutableLiveData<List<Meeting>> _meetings = new MutableLiveData<>();
     public LiveData<List<Meeting>> meetings = _meetings;
+
+    private MutableLiveData<List<Meeting>> _filteredMeetings = new MutableLiveData<>();
+    public LiveData<List<Meeting>> filteredMeetings = _filteredMeetings;
 
     public void getMeetings() {
         meetingRepository.getMeetings(new Callback<List<Meeting>>() {
@@ -69,5 +75,25 @@ public class MeetingViewModel extends ViewModel {
                 callback.onFailure(call, t);
             }
         });
+    }
+
+    public void getFilteredMeetingsById(String id) {
+        List<Meeting> allMeetings = meetings.getValue();
+        if (allMeetings == null) {
+            return;
+        }
+
+        if (TextUtils.isEmpty(id)) {
+            _filteredMeetings.postValue(allMeetings);
+            return;
+        }
+
+        List<Meeting> searched = new ArrayList<>();
+        for (Meeting meeting : allMeetings) {
+            if (Integer.toString(meeting.getId()).contains(id)) {
+                searched.add(meeting);
+            }
+        }
+        _filteredMeetings.postValue(searched);
     }
 }

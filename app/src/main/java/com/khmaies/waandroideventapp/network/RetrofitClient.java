@@ -9,7 +9,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
  */
 public class RetrofitClient {
 
-    private static final String BASE_URL = "https://18da-41-226-20-67.ngrok-free.app/"; // Update with your local API URL
+    private static final String BASE_URL = "https://e100-41-224-59-78.ngrok-free.app/"; // Update with your local API URL
     static OkHttpClient okHttpClient = new OkHttpClient.Builder()
             .build();
     private static Retrofit retrofit = new Retrofit.Builder()

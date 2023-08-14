@@ -3,7 +3,6 @@ package com.khmaies.waandroideventapp.data.utils;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
-import android.util.Log;
 
 import com.khmaies.waandroideventapp.presentation.interfaces.TimePickerDialogListener;
 
@@ -51,8 +50,7 @@ public class DateUtils {
             new TimePickerDialog(context, (view1, hourOfDay, minute) -> {
                 date.set(Calendar.HOUR_OF_DAY, hourOfDay);
                 date.set(Calendar.MINUTE, minute);
-                if(listener != null) listener.onTimePicked(date);
-                Log.v("monster", "The choosen one " + date.getTime());
+                if (listener != null) listener.onTimePicked(date);
             }, currentDate.get(Calendar.HOUR_OF_DAY), currentDate.get(Calendar.MINUTE), false).show();
         }, currentDate.get(Calendar.YEAR), currentDate.get(Calendar.MONTH), currentDate.get(Calendar.DATE)).show();
 
