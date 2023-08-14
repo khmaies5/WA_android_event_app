@@ -1,5 +1,7 @@
 package com.khmaies.waandroideventapp.presentation.users;
 
+import static com.google.android.material.snackbar.BaseTransientBottomBar.LENGTH_LONG;
+
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,6 +13,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import com.google.android.material.snackbar.Snackbar;
 import com.khmaies.waandroideventapp.databinding.FragmentUserBinding;
 
 import dagger.hilt.android.AndroidEntryPoint;
@@ -43,7 +46,11 @@ public class UserFragment extends Fragment {
         // Observe the users LiveData from the ViewModel
         userViewModel.users.observe(getViewLifecycleOwner(), userAdapter::setUsers);
         userViewModel.filteredUsers.observe(getViewLifecycleOwner(), userAdapter::setUsers);
-
+        userViewModel.error.observe(getViewLifecycleOwner(), error -> {
+            if (error) {
+                Snackbar.make(binding.getRoot(), "Something went wrong!", LENGTH_LONG).show();
+            }
+        });
         userViewModel.getUsers();
     }
 

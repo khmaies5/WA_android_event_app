@@ -18,6 +18,8 @@ public class RetrofitClient {
             .client(okHttpClient)
             .build();
 
+    private RetrofitClient() {}
+
     public static ApiService getApiService() {
         return retrofit.create(ApiService.class);
     }

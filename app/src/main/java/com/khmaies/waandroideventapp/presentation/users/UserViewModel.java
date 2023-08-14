@@ -30,6 +30,9 @@ public class UserViewModel extends ViewModel {
     private MutableLiveData<List<User>> _filteredUsers = new MutableLiveData<>();
     public LiveData<List<User>> filteredUsers = _filteredUsers;
 
+    private MutableLiveData<Boolean> _error = new MutableLiveData<>(false);
+    public LiveData<Boolean> error = _error;
+
     @Inject
     public UserViewModel(UserRepository userRepository) {
         this.userRepository = userRepository;
@@ -44,16 +47,20 @@ public class UserViewModel extends ViewModel {
                     List<User> userList = response.body();
                     // Apply your filter logic here if needed
                     // Call the provided callback with the filtered tasks
-                    Log.e(UserViewModel.class.getName(), response.body().toString());
+                    _error.postValue(false);
 
                     _users.postValue(userList);
                 } else {
+                    _error.postValue(true);
+
                     Log.e(UserViewModel.class.getName(), response.toString());
                 }
             }
 
             @Override
             public void onFailure(Call<List<User>> call, Throwable t) {
+                _error.postValue(true);
+
                 Log.e(UserViewModel.class.getName(), t.toString());
             }
         });

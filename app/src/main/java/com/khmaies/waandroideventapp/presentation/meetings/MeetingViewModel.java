@@ -5,9 +5,9 @@ import android.util.Log;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 
-import com.khmaies.waandroideventapp.data.model.Event;
 import com.khmaies.waandroideventapp.data.model.Meeting;
 import com.khmaies.waandroideventapp.data.repository.MeetingRepository;
 
@@ -36,6 +36,9 @@ public class MeetingViewModel extends ViewModel {
     private MutableLiveData<List<Meeting>> _filteredMeetings = new MutableLiveData<>();
     public LiveData<List<Meeting>> filteredMeetings = _filteredMeetings;
 
+    private MutableLiveData<Boolean> _error = new MutableLiveData<>(false);
+    public LiveData<Boolean> error = _error;
+
     public void getMeetings() {
         meetingRepository.getMeetings(new Callback<List<Meeting>>() {
             @Override
@@ -46,13 +49,17 @@ public class MeetingViewModel extends ViewModel {
                     // Apply your filter logic here if needed
                     // Call the provided callback with the filtered tasks
                     _meetings.postValue(meetingList);
+                    _error.postValue(false);
+
                 } else {
+                    _error.postValue(true);
                     Log.e(MeetingViewModel.class.getName(), response.toString());
                 }
             }
 
             @Override
             public void onFailure(Call<List<Meeting>> call, Throwable t) {
+                _error.postValue(true);
                 Log.e(MeetingViewModel.class.getName(), t.toString());
             }
         });
@@ -67,11 +74,14 @@ public class MeetingViewModel extends ViewModel {
                     newMeetingList.add(meeting);
                 }
                 _meetings.postValue(newMeetingList);
+                _error.postValue(false);
+
                 callback.onResponse(call, response);
             }
 
             @Override
             public void onFailure(Call<Meeting> call, Throwable t) {
+                _error.postValue(true);
                 callback.onFailure(call, t);
             }
         });
@@ -95,5 +105,17 @@ public class MeetingViewModel extends ViewModel {
             }
         }
         _filteredMeetings.postValue(searched);
+    }
+
+    public LiveData<Integer> getMeetingCountWithoutGuests() {
+        return Transformations.map(meetings, meetingsList -> {
+            int count = 0;
+            for (Meeting meeting : meetingsList) {
+                if (meeting.getGuests().isEmpty()) {
+                    count++;
+                }
+            }
+            return count;
+        });
     }
 }

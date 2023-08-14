@@ -17,6 +17,8 @@ public class DateUtils {
     private static final String INPUT_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss";
     private static final String OUTPUT_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
 
+    private DateUtils(){}
+
     public static String formatDate(String dateString) {
 
         try {

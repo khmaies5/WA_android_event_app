@@ -36,6 +36,9 @@ public class TaskViewModel extends ViewModel {
     private MutableLiveData<List<Task>> _filteredTasks = new MutableLiveData<>();
     public LiveData<List<Task>> filteredTasks = _filteredTasks;
 
+    private MutableLiveData<Boolean> _error = new MutableLiveData<>(false);
+    public LiveData<Boolean> error = _error;
+
     public void getTasks() {
         taskRepository.getTasks(new Callback<List<Task>>() {
             @Override
@@ -45,14 +48,20 @@ public class TaskViewModel extends ViewModel {
                     List<Task> taskList = response.body();
                     // Apply your filter logic here if needed
                     // Call the provided callback with the filtered tasks
+                    _error.postValue(false);
+
                     _tasks.postValue(taskList);
                 } else {
+                    _error.postValue(true);
+
                     Log.e(TaskViewModel.class.getName(), response.toString());
                 }
             }
 
             @Override
             public void onFailure(Call<List<Task>> call, Throwable t) {
+                _error.postValue(true);
+
                 Log.e(TaskViewModel.class.getName(), t.toString());
             }
         });
@@ -72,6 +81,7 @@ public class TaskViewModel extends ViewModel {
 
             @Override
             public void onFailure(Call<Task> call, Throwable t) {
+
                 callback.onFailure(call, t);
             }
         });

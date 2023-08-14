@@ -1,14 +1,17 @@
 package com.khmaies.waandroideventapp.presentation.events;
+
+import static com.google.android.material.snackbar.BaseTransientBottomBar.LENGTH_LONG;
 import static com.khmaies.waandroideventapp.data.utils.DateUtils.showDateTimePicker;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -20,9 +23,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import com.google.android.material.snackbar.Snackbar;
 import com.khmaies.waandroideventapp.R;
 import com.khmaies.waandroideventapp.data.model.Event;
-import com.khmaies.waandroideventapp.data.model.Task;
 import com.khmaies.waandroideventapp.databinding.FragmentEventBinding;
-import com.khmaies.waandroideventapp.presentation.tasks.TaskFragment;
+import com.khmaies.waandroideventapp.presentation.MainActivity;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -38,14 +40,13 @@ import retrofit2.Response;
 public class EventFragment extends Fragment {
 
     private FragmentEventBinding binding;
-    private EventAdapter eventAdapter;
     static EventViewModel eventViewModel;
+    private static MainActivity sInstance;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentEventBinding.inflate(inflater, container, false);
         binding.fabAddEvent.setOnClickListener(v -> showCreateEventDialog());
-
         return binding.getRoot();
     }
 
@@ -56,15 +57,26 @@ public class EventFragment extends Fragment {
         eventViewModel = new ViewModelProvider(requireActivity()).get(EventViewModel.class);
 
         // Set up RecyclerView and adapter
-        eventAdapter = new EventAdapter();
+        EventAdapter eventAdapter = new EventAdapter();
         binding.recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
         binding.recyclerView.setAdapter(eventAdapter);
 
-        eventViewModel.events.observe(getViewLifecycleOwner(), events -> eventAdapter.setEvents(events));
-        eventViewModel.filteredEvents.observe(getViewLifecycleOwner(), filteredEvents -> eventAdapter.setEvents(filteredEvents));
+        eventViewModel.events.observe(getViewLifecycleOwner(), eventAdapter::setEvents);
+        eventViewModel.filteredEvents.observe(getViewLifecycleOwner(), eventAdapter::setEvents);
+        eventViewModel.error.observe(getViewLifecycleOwner(), error -> {
+            if (error) {
+                Snackbar.make(binding.getRoot(), "Something went wrong!", LENGTH_LONG).show();
+            }
+        });
 
         // Observe the events LiveData from the ViewModel
         eventViewModel.getEvents();
+    }
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        sInstance = (MainActivity) getActivity();
     }
 
     private void showCreateEventDialog() {
@@ -76,14 +88,16 @@ public class EventFragment extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         binding = null;
+        sInstance = null;
     }
 
     public static class CreateEventDialogFragment extends DialogFragment {
         EditText etDateTime;
         Calendar date;
-        final Calendar currentDate = Calendar.getInstance();
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
         String formattedDate;
+
+        @NonNull
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -100,7 +114,7 @@ public class EventFragment extends Fragment {
                     etDateTime.setText(date.getTime().toString())));
 
             builder.setView(view)
-                    .setTitle("Create New Task")
+                    .setTitle("Create New Event")
                     .setPositiveButton("Create", (dialog, id) -> {
 
                         formattedDate = sdf.format(date.getTime());
@@ -111,12 +125,12 @@ public class EventFragment extends Fragment {
                         eventViewModel.createTask(event, new Callback<Event>() {
                             @Override
                             public void onResponse(Call<Event> call, Response<Event> response) {
-                                Snackbar.make(view, "Task created!", Snackbar.LENGTH_SHORT).show();
+                                Toast.makeText(sInstance, "Event created", Toast.LENGTH_SHORT).show();
                             }
 
                             @Override
                             public void onFailure(Call<Event> call, Throwable t) {
-                                Snackbar.make(view, "Task creation error!", Snackbar.LENGTH_SHORT).show();
+                                Toast.makeText(sInstance, "Event creation error!", Toast.LENGTH_SHORT).show();
                             }
                         });
                     });

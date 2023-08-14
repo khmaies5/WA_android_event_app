@@ -13,6 +13,7 @@ import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.NavigationUI;
 
+import com.google.android.material.snackbar.Snackbar;
 import com.khmaies.waandroideventapp.R;
 import com.khmaies.waandroideventapp.databinding.ActivityMainBinding;
 import com.khmaies.waandroideventapp.presentation.events.EventViewModel;
@@ -20,14 +21,16 @@ import com.khmaies.waandroideventapp.presentation.meetings.MeetingViewModel;
 import com.khmaies.waandroideventapp.presentation.tasks.TaskViewModel;
 import com.khmaies.waandroideventapp.presentation.users.UserViewModel;
 
+import java.util.Objects;
+
 import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
 public class MainActivity extends AppCompatActivity {
-    static TaskViewModel taskViewModel;
-    static MeetingViewModel meetingViewModel;
-    static EventViewModel eventViewModel;
-    static UserViewModel userViewModel;
+     TaskViewModel taskViewModel;
+     MeetingViewModel meetingViewModel;
+     EventViewModel eventViewModel;
+     UserViewModel userViewModel;
     ActivityMainBinding binding;
 
     @Override
@@ -36,18 +39,20 @@ public class MainActivity extends AppCompatActivity {
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-
         setSupportActionBar(binding.toolbar);
 
-        NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment_content_main);
-        NavController navController = navHostFragment.getNavController();
-
-
-        NavigationUI.setupWithNavController(binding.bottomNavigationView, navController);
         taskViewModel = new ViewModelProvider(this).get(TaskViewModel.class);
         meetingViewModel = new ViewModelProvider(this).get(MeetingViewModel.class);
         eventViewModel = new ViewModelProvider(this).get(EventViewModel.class);
         userViewModel = new ViewModelProvider(this).get(UserViewModel.class);
+
+        NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment_content_main);
+        assert navHostFragment != null;
+        NavController navController = navHostFragment.getNavController();
+
+
+        NavigationUI.setupWithNavController(binding.bottomNavigationView, navController);
+
 
         // Set up BottomNavigationView with NavController
         binding.bottomNavigationView.setOnItemSelectedListener(item -> {
@@ -55,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
             navController.navigate(destinationId);
             return true;
         });
-
+        navController.addOnDestinationChangedListener((controller, destination, arguments) -> Objects.requireNonNull(getSupportActionBar()).setTitle(destination.getLabel()));
     }
 
     @Override
@@ -87,6 +92,8 @@ public class MainActivity extends AppCompatActivity {
                     case R.id.userFragment:
                         userViewModel.getFilteredUsersById(newText);
                         break;
+                    default:
+                        return false;
                 }
 
                 return false;
@@ -106,6 +113,8 @@ public class MainActivity extends AppCompatActivity {
                 case R.id.userFragment:
                     userViewModel.getFilteredUsersById("");
                     break;
+                default:
+                    return false;
             }
             return false;
         });

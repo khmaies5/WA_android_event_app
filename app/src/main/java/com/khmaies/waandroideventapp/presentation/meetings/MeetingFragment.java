@@ -1,14 +1,18 @@
 package com.khmaies.waandroideventapp.presentation.meetings;
 
+import static com.google.android.material.snackbar.BaseTransientBottomBar.LENGTH_LONG;
+import static com.google.android.material.snackbar.BaseTransientBottomBar.LENGTH_SHORT;
 import static com.khmaies.waandroideventapp.data.utils.DateUtils.showDateTimePicker;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -21,6 +25,7 @@ import com.google.android.material.snackbar.Snackbar;
 import com.khmaies.waandroideventapp.R;
 import com.khmaies.waandroideventapp.data.model.Meeting;
 import com.khmaies.waandroideventapp.databinding.FragmentMeetingBinding;
+import com.khmaies.waandroideventapp.presentation.MainActivity;
 
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
@@ -40,6 +45,7 @@ public class MeetingFragment extends Fragment {
 
     static MeetingViewModel meetingViewModel;
     private FragmentMeetingBinding binding;
+    private static MainActivity sInstance;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
@@ -58,10 +64,18 @@ public class MeetingFragment extends Fragment {
 
         binding.recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
         binding.recyclerView.setAdapter(meetingAdapter);
-
-        meetingViewModel.meetings.observe(getViewLifecycleOwner(), meetingAdapter::setMeetings);
         // Observe the tasks LiveData from the ViewModel
+        meetingViewModel.meetings.observe(getViewLifecycleOwner(), meetingAdapter::setMeetings);
         meetingViewModel.filteredMeetings.observe(getViewLifecycleOwner(), meetingAdapter::setMeetings);
+        meetingViewModel.getMeetingCountWithoutGuests().observe(getViewLifecycleOwner(), count -> {
+            String countText = getString(R.string.meetings_without_guests_count, count);
+            binding.tvMeetingCount.setText(countText);
+        });
+        meetingViewModel.error.observe(getViewLifecycleOwner(), error -> {
+            if (error) {
+                Snackbar.make(binding.getRoot(), "Something went wrong!", LENGTH_LONG).show();
+            }
+        });
 
         meetingViewModel.getMeetings();
     }
@@ -71,11 +85,18 @@ public class MeetingFragment extends Fragment {
         dialog.show(getParentFragmentManager(), "CreateMeetingDialog");
     }
 
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        sInstance = (MainActivity) getActivity();
+    }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
         binding = null;
+        sInstance = null;
+
     }
 
     public static class CreateMeetingDialogFragment extends DialogFragment {
@@ -117,12 +138,12 @@ public class MeetingFragment extends Fragment {
                         meetingViewModel.createMeeting(meeting, new Callback<Meeting>() {
                             @Override
                             public void onResponse(Call<Meeting> call, Response<Meeting> response) {
-                                Snackbar.make(view, "Task created!", Snackbar.LENGTH_SHORT).show();
+                                Toast.makeText(sInstance, "meeting created", Toast.LENGTH_SHORT).show();
                             }
 
                             @Override
                             public void onFailure(Call<Meeting> call, Throwable t) {
-                                Snackbar.make(view, "Task creation error!", Snackbar.LENGTH_SHORT).show();
+                                Toast.makeText(sInstance, "meeting creation error!", Toast.LENGTH_SHORT).show();
                             }
                         });
                     });

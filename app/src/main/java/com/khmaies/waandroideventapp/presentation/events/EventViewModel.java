@@ -35,6 +35,9 @@ public class EventViewModel extends ViewModel {
     private MutableLiveData<List<Event>> _filteredEvents = new MutableLiveData<>();
     public LiveData<List<Event>> filteredEvents = _filteredEvents;
 
+    private MutableLiveData<Boolean> _error = new MutableLiveData<>(false);
+    public LiveData<Boolean> error = _error;
+
     public void getEvents() {
         eventRepository.getEvents(new Callback<List<Event>>() {
             @Override
@@ -44,14 +47,18 @@ public class EventViewModel extends ViewModel {
                     List<Event> eventList = response.body();
                     // Apply your filter logic here if needed
                     // Call the provided callback with the filtered tasks
+                    _error.postValue(false);
+
                     _events.postValue(eventList);
                 } else {
+                    _error.postValue(true);
                     Log.e(EventViewModel.class.getSimpleName(), response.toString());
                 }
             }
 
             @Override
             public void onFailure(Call<List<Event>> call, Throwable t) {
+                _error.postValue(true);
                 Log.e(EventViewModel.class.getSimpleName(), t.toString());
             }
         });
@@ -66,11 +73,14 @@ public class EventViewModel extends ViewModel {
                     newEventList.add(event);
                 }
                 _events.postValue(newEventList);
+                _error.postValue(false);
+
                 callback.onResponse(call, response);
             }
 
             @Override
             public void onFailure(Call<Event> call, Throwable t) {
+                _error.postValue(true);
                 callback.onFailure(call, t);
             }
         });
